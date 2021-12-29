@@ -36,6 +36,7 @@ class Server:
         offerMessage = struct.pack("Ibh", 0xabcddcba, 0x2, self.hostPort)
         # brodacast the message to all clients connected to the net
         self.UDPSocket.sendto(
+            # offerMessage, (self.DevNet, self.udpBroadcastPort))
             offerMessage, (self.DevNet, self.udpBroadcastPort))
 
     def waitForClient(self):
@@ -46,10 +47,10 @@ class Server:
         this function update the self.team with the first two teams that request to join
         we leave this this stage when two clients joined the game.
         '''
-        UdpBroadcastThread = threading.Thread(target=server.sendUdpBroadcast)
+        UdpBroadcastThread = threading.Thread(target=server.brodcastUdpOffer)
         UdpBroadcastThread.start()
         while len(server.teams) < 2:
-            self.tcpSocket.settimeout(0.1)
+            self.TCPSocket.settimeout(0.1)
             try:
                 clientSocket, clientAddress = self.TCPSocket.accept()
                 teamName = clientSocket.recv(self.bufferSize).decode("utf-8")
@@ -69,7 +70,7 @@ class Server:
                 sol = team.recv(self.bufferSize).decode("utf-8")
             except:
                 pass
-        return sol, team[2]
+        return (sol, team[2])
 
     def getMathProblem(self):
         opStr = ['+', '-', '*', '/']
@@ -77,13 +78,13 @@ class Server:
         num2 = random.randrange(num1, 50, num1)
         opIndex = random.randrange(0, 4)
         problem = str(num2) + opStr[opIndex] + str(num1)
-        if opIndex is 0:
+        if opIndex == 0:
             solution = num2 + num1
-        if opIndex is 1:
+        if opIndex == 1:
             solution = num2 - num1
-        if opIndex is 2:
+        if opIndex == 2:
             solution = num1 * num2
-        if opIndex is 3:
+        if opIndex == 3:
             solution = num2 // num1
         return problem, solution
 
@@ -102,7 +103,7 @@ if __name__ == '__main__':
     while True:
         server.teams = []
         # Print start message
-        print(f"Server started, listeningon IP address {server.hostIP}")
+        print(f"Server started, listening on IP address {server.hostIP}")
         # Start wait for clients stage
         server.waitForClient()
 
@@ -122,8 +123,8 @@ if __name__ == '__main__':
         sol = []
         with concurrent.futures.ThreadPoolExecutor(len(server.teams)) as pool:
             for team in server.teams:
-                teamSol, name = pool.submit(server.startGameMode, team)
-                sol.append((teamSol, name))
+                teamSol = pool.submit(server.startGameMode, team)
+                sol.append(teamSol)
 
         if sol[0][0] == None:
             winTeam = 'draw'
