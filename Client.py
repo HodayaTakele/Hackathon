@@ -12,7 +12,7 @@ def lookingForServer():
     UDPSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     UDPSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     # Servers broadcast their announcements with destination port 13117 using UDP:
-    UDPSocket.bind("", 13117)
+    UDPSocket.bind(("", 13117))
     messageFromServer = None
     while messageFromServer is None:
         try:
@@ -86,3 +86,6 @@ def startClient():
             continue
         print("Server disconnected, listening for offer requests...")
         # the client continue to waiting for offer messages
+
+
+startClient()
