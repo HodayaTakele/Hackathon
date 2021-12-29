@@ -1,8 +1,8 @@
 import socket
 import struct
 import time
-#import getch
-import msvcrt
+# import getch
+# import msvcrt
 # from termcolor import colored
 
 
@@ -58,8 +58,9 @@ def startGameMode(TCPSocket):
         # timer of 10 sec
         startTime = time.time()
         while time.time() - startTime < 10:
-            #char = getch.getch()
-            char = msvcrt.getch()
+            # char = getch.getch()
+            # char = msvcrt.getch()
+            char = sys.stdin.readline()[0]
             if char.isdigit():
                 TCPSocket.sendall(bytes(char, "utf-8"))
             else:

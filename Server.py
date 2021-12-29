@@ -68,25 +68,25 @@ class Server:
             try:
                 team[0].settimeout(0.01)
                 sol = team.recv(self.bufferSize).decode("utf-8")
+                return (sol, team[2])
             except:
                 pass
-        return (sol, team[2])
 
     def getMathProblem(self):
         opStr = ['+', '-', '*', '/']
-        num1 = random.randrange(1, 12)
-        num2 = random.randrange(num1, 50, num1)
-        opIndex = random.randrange(0, 4)
+        num1 = random.randrange(1, 5)
+        num2 = random.randrange(num1, 5, num1)
+        opIndex = random.randrange(0, 2)
         problem = str(num2) + opStr[opIndex] + str(num1)
         if opIndex == 0:
             solution = num2 + num1
         if opIndex == 1:
             solution = num2 - num1
-        if opIndex == 2:
-            solution = num1 * num2
-        if opIndex == 3:
-            solution = num2 // num1
         return problem, solution
+        # if opIndex == 2:
+        #     solution = num1 * num2
+        # if opIndex == 3:
+        #     solution = num2 // num1
 
 
 # Game Flow
@@ -123,15 +123,19 @@ if __name__ == '__main__':
         sol = []
         with concurrent.futures.ThreadPoolExecutor(len(server.teams)) as pool:
             for team in server.teams:
-                teamSol = pool.submit(server.startGameMode, team)
-                sol.append(teamSol)
-
-        if sol[0][0] == None:
+                #teamSol = pool.submit(server.startGameMode, team)
+                sol.append(pool.submit(server.startGameMode, team))
+                # print(teamSol[0])
+                # sol.append(teamSol)
+                # print(sol)
+        s1 = sol[0].result()
+        s2 = sol[1].result()
+        if s1 == None and s2 == None:
             winTeam = 'draw'
-        elif sol[0][0] == solution:
-            winTeam = sol[0][1]
+        elif s1[0] == solution:
+            winTeam = s1[1]
         else:
-            winTeam = sol[1][1]
+            winTeam = s2[1]
         gameOverMsg = ''
         if winTeam == 'draw':
             gameOverMsg = f"Game over!\nThe correct answer was {solution}!\n\nit's a draw"
