@@ -36,8 +36,8 @@ class Server:
         offerMessage = struct.pack("Ibh", 0xabcddcba, 0x2, self.hostPort)
         # brodacast the message to all clients connected to the net
         self.UDPSocket.sendto(
-            # offerMessage, (self.DevNet, self.udpBroadcastPort))
             offerMessage, (self.DevNet, self.udpBroadcastPort))
+        # offerMessage, (self.hostIP, self.udpBroadcastPort))
 
     def waitForClient(self):
         '''

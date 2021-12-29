@@ -75,9 +75,10 @@ def startClient():
     print("Client started, listening for offer requests...")
     while True:
         receivedData, addr = lookingForServer()
+        print(addr)
         print(f"Received offer from {addr[0]}, attempting to connect...")
         portNum = getPortNum(receivedData)  # could be None!
-        if portNum in None:
+        if portNum is None:
             # continue wait for other port
             continue
         try:
